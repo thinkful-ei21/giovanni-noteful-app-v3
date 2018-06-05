@@ -93,19 +93,19 @@ const Note = require('../models/note');
 
 //delete a note by id
 
-mongoose.connect(MONGODB_URI)
-  .then(()=>{
-    const noteId = '000000000000000000000003';
+// mongoose.connect(MONGODB_URI)
+//   .then(()=>{
+//     const noteId = '000000000000000000000003';
 
-    return Note.findByIdAndRemove(noteId);
-  })
-  .then(result => {
-    console.log(result);
-  })
-  .then(() => {
-    return mongoose.disconnect();
-  })
-  .catch(err => {
-    console.error(`ERROR: ${err.message}`);
-    console.error(err);
-  });
+//     return Note.findByIdAndRemove(noteId);
+//   })
+//   .then(result => {
+//     console.log(result);
+//   })
+//   .then(() => {
+//     return mongoose.disconnect();
+//   })
+//   .catch(err => {
+//     console.error(`ERROR: ${err.message}`);
+//     console.error(err);
+//   });

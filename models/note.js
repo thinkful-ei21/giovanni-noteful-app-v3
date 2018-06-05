@@ -7,5 +7,13 @@ const noteSchema = new mongoose.Schema ({
   content: {type: String},
 }, {timestamps: true} );
 
+noteSchema.set('toObject', {
+  virtuals: true,     // include built-in virtual `id`
+  versionKey: false,  // remove `__v` version key
+  transform: (doc, ret) => {
+    delete ret._id; // delete `_id`
+  }
+});
 
-module.exports = mongoose.model('note', noteSchema, 'notes');
+
+module.exports = mongoose.model('Note', noteSchema, 'notes');
