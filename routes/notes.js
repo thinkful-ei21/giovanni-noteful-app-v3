@@ -18,7 +18,8 @@ router.get('/', (req, res, next) => {
       let filter = {};
 
       if (searchTerm) {
-        filter.title = { $regex: searchTerm };
+        filter = { $or : [{title: {$regex: searchTerm}},{content: {$regex: searchTerm}}]
+        };
       }
 
       return Note.find(filter).sort({ updatedAt: 'desc' });
@@ -31,7 +32,7 @@ router.get('/', (req, res, next) => {
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
-      console.error(err);
+      next(err);
     });
 
 });
@@ -54,7 +55,7 @@ router.get('/:id', (req, res, next) => {
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
-      console.error(err);
+      next(err);
     });
 
 });
@@ -89,7 +90,7 @@ router.post('/', (req, res, next) => {
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
-      console.error(err);
+      next(err);
     });
 
 
@@ -132,7 +133,7 @@ router.put('/:id', (req, res, next) => {
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
-      console.error(err);
+      next(err);
     });
 
   
@@ -158,7 +159,7 @@ router.delete('/:id', (req, res, next) => {
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
-      console.error(err);
+      next(err);
     });
 });
 
