@@ -12,23 +12,16 @@ router.get('/', (req, res, next) => {
 
   const {searchTerm, folderId, tagId} = req.query;
 
-  mongoose.connect(MONGODB_URI)
-    .then(() => {
-      
-      let filter = {};
+  let filter = {};
 
-      if (searchTerm) {
-        filter = { $or : [{title: {$regex: searchTerm}},{content: {$regex: searchTerm}}]
-        };
-      }
+  if (searchTerm) {
+    filter = { $or : [{title: {$regex: searchTerm}},{content: {$regex: searchTerm}}]
+    };
+  }
 
-      return Note.find(filter).sort({ updatedAt: 'desc' });
-    })    
+  Note.find(filter).sort({ updatedAt: 'desc' })
     .then(results => {
       res.json(results);
-    })
-    .then(() => {
-      return mongoose.disconnect();
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
@@ -43,15 +36,9 @@ router.get('/:id', (req, res, next) => {
   const noteId = req.params.id;
 
   // console.log('note id is:',noteId);
-  mongoose.connect(MONGODB_URI)
-    .then(()=>{       
-      return Note.findById(noteId);
-    })
+  Note.findById(noteId)
     .then(result => {
       res.json(result);
-    })
-    .then(() => {
-      return mongoose.disconnect();
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
@@ -76,17 +63,10 @@ router.post('/', (req, res, next) => {
 
   let noteId;
 
-  mongoose.connect(MONGODB_URI)
-    .then(()=>{
-
-      return Note.create(newNote);
-    })
+  Note.create(newNote)
     .then(result => {
       console.log('returning this object:', result);
       res.location(`http://${req.headers.host}/notes/${result.id}`).status(201).json(result);
-    })
-    .then(() => {
-      return mongoose.disconnect();
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
@@ -120,16 +100,10 @@ router.put('/:id', (req, res, next) => {
     return next(err);
   }
 
-  mongoose.connect(MONGODB_URI)
-    .then(()=>{
-      const options = {upsert : true, new :true};
-      return Note.findByIdAndUpdate(noteId, updateObj, options);
-    })
+  const options = {upsert : true, new :true};
+  Note.findByIdAndUpdate(noteId, updateObj, options)
     .then(result => {
       res.json(result);
-    })
-    .then(() => {
-      return mongoose.disconnect();
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
@@ -145,17 +119,10 @@ router.delete('/:id', (req, res, next) => {
 
   const noteId = req.params.id;
 
-  mongoose.connect(MONGODB_URI)
-    .then(()=>{
-
-      return Note.findByIdAndRemove(noteId);
-    })
+  Note.findByIdAndRemove(noteId)
     .then(result => {
       console.log('deleted?');
       res.status(204).end();
-    })
-    .then(() => {
-      return mongoose.disconnect();
     })
     .catch(err => {
       console.error(`ERROR: ${err.message}`);

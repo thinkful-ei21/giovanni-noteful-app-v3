@@ -44,7 +44,7 @@ app.use(function (err, req, res, next) {
 
 // Listen for incoming connections
 
-if (process.env.NODE_ENV !== 'test'){
+if (require.main === module){
   mongoose.connect(MONGODB_URI)
     .then(instance => {
       const conn = instance.connections[0];
