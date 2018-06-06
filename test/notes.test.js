@@ -33,25 +33,45 @@ describe('notes router', () => {
   });
 
   describe('GET /api/notes', function () {
-    // 1) Call the database **and** the API
-    // 2) Wait for both promises to resolve using `Promise.all`
-    return Promise.all([
-      Note.find(),
-      chai.request(app).get('/api/notes')
-    ])
-      // 3) then compare database results to API response
-      .then(([data, res]) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
-        expect(res.body).to.be.a('array');
-        expect(res.body).to.have.length(data.length);
-      });
+
+    it('/ should return a JSON object containing an array of notes', ()=>{
+      return Promise.all([
+        Note.find(),
+        chai.request(app).get('/api/notes')
+      ])
+        .then(([data, res]) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          expect(res.body).to.have.length(data.length);
+        });
+    });
+
+    it('/ [ID] should return a note object with the correct ID', ()=>{
+      return Promise.all([
+        Note.find({'_id': '000000000000000000000001'}),
+        chai.request(app).get('/api/notes/000000000000000000000001')
+      ])
+        .then(([data, res])=>{
+          expect(res).to.have.status(200);
+          expect(data[0].title).to.be.equal(res.body.title);
+          expect(data[0].id).to.be.equal(res.body.id);
+        });
+    });
+
+    it('/  with SearchTerm in header should return matching notes',()=>{
+      let searchTerm = 'asdf09843v13qve4';
+      return Promise.all([
+        Note.find({ $or : [{title: {$regex: searchTerm}},{content: {$regex: searchTerm} } ] }),
+        chai.request(app).get(`/api/notes/?searchTerm=${searchTerm}`)
+      ])
+        .then(([data, res])=>{
+          expect(res).to.have.status(200);
+          expect(data.length).to.be.equal(res.body.length);
+        });
+    });
+
   });
 
-
-  // describe('GET /api/notes/[ID]', function(){
-  //   it('should')
-  // });
 
 
   describe('POST /api/notes', function () {
@@ -68,6 +88,7 @@ describe('notes router', () => {
         .send(newItem)
         .then(function (_res) {
           res = _res;
+          
           expect(res).to.have.status(201);
           expect(res).to.have.header('location');
           expect(res).to.be.json;
@@ -86,5 +107,54 @@ describe('notes router', () => {
         });
     });
   });
-  
+
+  describe('PUT /api/notes', function () {
+    it('/ [ID ]should update and return an item at a given ID', function () {
+      const newItem = {
+        'title': 'and now for something completely different',
+        'content': '..which is to say: this item has changed'
+      };
+      const itemId = '000000000000000000000000';
+
+      let res;
+      
+      return chai.request(app)
+        .put(`/api/notes/${itemId}`)
+        .send(newItem)
+        .then(function (_res) {
+          res = _res;
+          expect(res).to.have.status(200);
+          //expect(res).to.have.header('location');
+          expect(res).to.be.json;
+          expect(res.body).to.be.a('object');
+          expect(res.body).to.have.keys('id', 'title', 'content', 'createdAt', 'updatedAt');
+          
+          return Note.findById(itemId);
+        })
+        .then(data => {
+          expect(res.body.id).to.equal(data.id);
+          expect(res.body.title).to.equal(data.title);
+          expect(res.body.content).to.equal(data.content);
+          expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
+          expect(new Date(res.body.updatedAt)).to.eql(data.updatedAt);
+        });
+    });
+  });
+
+  describe('DELETE /api/notes', function () {
+    it('/ [ID] should remove an item and and return status 204', function () {
+      const itemId = '000000000000000000000000';
+
+      return chai.request(app)
+        .del(`/api/notes/${itemId}`)
+        .then(function (res) {
+          expect(res).to.have.status(204);          
+          return Note.findById(itemId);
+        })
+        .then(data => {
+          expect(data).to.be.equal(null);
+        });
+    });
+  });
+
 });
