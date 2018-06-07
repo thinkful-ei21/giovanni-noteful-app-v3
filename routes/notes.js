@@ -61,8 +61,6 @@ router.post('/', (req, res, next) => {
     return next(err);
   }
 
-  let noteId;
-
   Note.create(newNote)
     .then(result => {
       console.log('returning this object:', result);
@@ -72,8 +70,6 @@ router.post('/', (req, res, next) => {
       console.error(`ERROR: ${err.message}`);
       next(err);
     });
-
-
 
 });
 
@@ -115,12 +111,9 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
 
   const noteId = req.params.id;
-
+  
   Note.findByIdAndRemove(noteId)
-    .then(result => {
-      console.log('deleted?');
-      res.status(204).end();
-    })
+    .then(() => res.status(204).end())
     .catch(err => {
       console.error(`ERROR: ${err.message}`);
       next(err);

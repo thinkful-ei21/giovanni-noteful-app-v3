@@ -127,7 +127,7 @@ describe('notes router', () => {
           //expect(res).to.have.header('location');
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
-          expect(res.body).to.have.keys('id', 'title', 'content', 'createdAt', 'updatedAt');
+          expect(res.body).to.have.keys('id', 'title', 'content', 'createdAt', 'updatedAt', 'folderId');
           
           return Note.findById(itemId);
         })
@@ -143,7 +143,7 @@ describe('notes router', () => {
 
   describe('DELETE /api/notes', function () {
     it('/ [ID] should remove an item and and return status 204', function () {
-      const itemId = '000000000000000000000000';
+      const itemId = '000000000000000000000001';
 
       return chai.request(app)
         .del(`/api/notes/${itemId}`)
