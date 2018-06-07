@@ -20,13 +20,8 @@ router.get('/', (req, res, next) => {
   }
 
   Note.find(filter).sort({ updatedAt: 'desc' })
-    .then(results => {
-      res.json(results);
-    })
-    .catch(err => {
-      console.error(`ERROR: ${err.message}`);
-      next(err);
-    });
+    .then(response => !response ? next() : res.json(response))
+    .catch(err => next(err));
 
 });
 
@@ -37,13 +32,8 @@ router.get('/:id', (req, res, next) => {
 
   // console.log('note id is:',noteId);
   Note.findById(noteId)
-    .then(result => {
-      res.json(result);
-    })
-    .catch(err => {
-      console.error(`ERROR: ${err.message}`);
-      next(err);
-    });
+    .then(response => !response ? next() : res.json(response))
+    .catch(err => next(err));
 
 });
 
