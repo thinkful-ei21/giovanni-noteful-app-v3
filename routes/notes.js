@@ -7,6 +7,7 @@ const { MONGODB_URI } = require('../config');
 const Note = require('../models/note');
 
 
+
 /* ========== GET/READ ALL ITEM ========== */
 router.get('/', (req, res, next) => {
 
@@ -49,11 +50,10 @@ router.get('/:id', (req, res, next) => {
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/', (req, res, next) => {
 
-  const { title, content, folder_id, tags} = req.body;
+  const { title, content, folderId, tags} = req.body;
 
   const newNote = { title, content};
-  // folder_id == true? newNote.folder_id = folder_id : {};
-
+  folderId && mongoose.Types.ObjectId.isValid(folderId)? newNote.folderId = folderId : {};
   if (!newNote.title) {
     const err = new Error('Missing `title` in request body');
     err.status = 400;
@@ -82,12 +82,13 @@ router.put('/:id', (req, res, next) => {
     err.status = 400;
     return next(err);
   }
-  
-  //  const folder_id = req.body.folder_id;
+
+  const folderId = req.body.folderId;
   const updateObj = {};
   const updateableFields = ['title', 'content'];
  
-  //  folder_id == true? updateObj.folder_id = folder_id : {};
+  folderId && mongoose.Types.ObjectId.isValid(folderId)? updateObj.folderId = folderId : {};
+   
   //  let tags= req.body.tags;
 
   updateableFields.forEach(field => {
@@ -95,6 +96,7 @@ router.put('/:id', (req, res, next) => {
       updateObj[field] = req.body[field];
     }
   });
+
 
   if (!updateObj.title) {
     const err = new Error('Missing `title` in request body');

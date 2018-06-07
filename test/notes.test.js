@@ -8,6 +8,8 @@ const { TEST_MONGODB_URI } = require('../config');
 const app = require('../server.js');
 const Note = require('../models/note');
 const seedNotes = require('../db/seed/notes');
+const Folder = require('../models/folder');
+const seedFolders = require('../db/seed/folders');
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -21,7 +23,8 @@ describe('notes router', () => {
   });
     
   beforeEach(function () {
-    return Note.insertMany(seedNotes);
+    return Note.insertMany(seedNotes)
+      .then(()=> Folder.insertMany(seedFolders));
   });
     
   afterEach(function () {
@@ -78,7 +81,8 @@ describe('notes router', () => {
     it('should create and return a new item when provided valid data', function () {
       const newItem = {
         'title': 'The best article about cats ever!',
-        'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...'
+        'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+        'folderId': '111111111111111111111102'
       };
 
       let res;
@@ -93,7 +97,7 @@ describe('notes router', () => {
           expect(res).to.have.header('location');
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
-          expect(res.body).to.have.keys('id', 'title', 'content', 'createdAt', 'updatedAt');
+          expect(res.body).to.have.keys('id', 'title', 'content', 'createdAt', 'updatedAt', 'folderId');
           // 2) then call the database
           return Note.findById(res.body.id);
         })
