@@ -20,6 +20,12 @@ router.get('/', (req, res, next) => {
 router.get('/:id', (req, res, next)=>{
   const folderId = req.params.id;
 
+  if (!mongoose.Types.ObjectId.isValid(folderId)){
+    const err = new Error('Invalid ID');
+    err.status = 400;
+    return next(err);
+  }
+
   Folder.findById(folderId)
     .then(response => !response ? next() : res.json(response))
     .catch(err => next(err));
@@ -51,6 +57,12 @@ router.post('/', (req,res, next) => {
 router.put('/:id', (req, res, next)=>{
   const folderId = req.params.id;
   const {name} = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(folderId)){
+    const err = new Error('Invalid ID');
+    err.status = 400;
+    return next(err);
+  }
 
   Folder.findByIdAndUpdate(folderId, {'name': name}, {upsert : true, new :true})
     .then(result => res.json(result))

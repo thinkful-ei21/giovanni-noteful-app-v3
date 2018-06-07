@@ -18,6 +18,9 @@ router.get('/', (req, res, next) => {
     filter = { $or : [{title: {$regex: searchTerm}},{content: {$regex: searchTerm}}]
     };
   }
+  if(folderId) {
+    filter.folderId = folderId;
+  }
 
   Note.find(filter).sort({ updatedAt: 'desc' })
     .then(response => !response ? next() : res.json(response))
@@ -29,6 +32,12 @@ router.get('/', (req, res, next) => {
 router.get('/:id', (req, res, next) => {
 
   const noteId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(noteId)){
+    const err = new Error('Invalid ID');
+    err.status = 400;
+    return next(err);
+  }
 
   // console.log('note id is:',noteId);
   Note.findById(noteId)
@@ -67,6 +76,13 @@ router.post('/', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
 
   const noteId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(noteId)){
+    const err = new Error('Invalid ID');
+    err.status = 400;
+    return next(err);
+  }
+  
   //  const folder_id = req.body.folder_id;
   const updateObj = {};
   const updateableFields = ['title', 'content'];

@@ -128,6 +128,4 @@ describe('folders router', () => {
         expect(data).to.be.equal(null);
       });
   });
-
-
 });
