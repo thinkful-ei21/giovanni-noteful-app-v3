@@ -119,7 +119,7 @@ describe('folders router', () => {
     const itemId = '111111111111111111111103';
 
     return chai.request(app)
-      .del(`/api/notes/${itemId}`)
+      .del(`/api/folders/${itemId}`)
       .then(function (res) {
         expect(res).to.have.status(204);          
         return Folder.findById(itemId);
