@@ -16,14 +16,18 @@ router.get('/', (req, res, next) => {
   let filter = {};
 
   if (searchTerm) {
-    filter = { $or : [{title: {$regex: searchTerm}},{content: {$regex: searchTerm}}]
-    };
-  }
-  if(folderId) {
-    filter.folderId = folderId;
+    filter = { $or : [
+      {title: {$regex: searchTerm}},
+      {content: {$regex: searchTerm}},
+    ] };
   }
 
+  folderId ? filter.folderId = folderId : {};
+  tagId ? filter.tags = tagId : {};
+  
+
   Note.find(filter).sort({ updatedAt: 'desc' })
+    .populate('tags')
     .then(response => !response ? next() : res.json(response))
     .catch(err => next(err));
 
@@ -42,6 +46,7 @@ router.get('/:id', (req, res, next) => {
 
   // console.log('note id is:',noteId);
   Note.findById(noteId)
+    .populate('tags')
     .then(response => !response ? next() : res.json(response))
     .catch(err => next(err));
 
@@ -53,11 +58,25 @@ router.post('/', (req, res, next) => {
   const { title, content, folderId, tags} = req.body;
 
   const newNote = { title, content};
+
+
   folderId && mongoose.Types.ObjectId.isValid(folderId)? newNote.folderId = folderId : {};
   if (!newNote.title) {
     const err = new Error('Missing `title` in request body');
     err.status = 400;
     return next(err);
+  }
+  if(tags){
+    newNote.tags = [];
+    tags.forEach(tag => {
+      if (!mongoose.Types.ObjectId.isValid(tag)){
+        const err = new Error('Invalid tag ID');
+        err.status = 400;
+        return next(err);
+      } else {
+        newNote.tags.push(tag);
+      }
+    });
   }
 
   Note.create(newNote)
@@ -84,12 +103,25 @@ router.put('/:id', (req, res, next) => {
   }
 
   const folderId = req.body.folderId;
+  const tags = req.body.tags;
   const updateObj = {};
   const updateableFields = ['title', 'content'];
  
   folderId && mongoose.Types.ObjectId.isValid(folderId)? updateObj.folderId = folderId : {};
-   
-  //  let tags= req.body.tags;
+ 
+  if(tags){
+    updateObj.tags = [];
+    tags.forEach(tag => {
+      if (!mongoose.Types.ObjectId.isValid(tag)){
+        const err = new Error('Invalid tag ID');
+        err.status = 400;
+        return next(err);
+      } else {
+        updateObj.tags.push(tag);
+      }
+    });
+  }
+ 
 
   updateableFields.forEach(field => {
     if (field in req.body) {

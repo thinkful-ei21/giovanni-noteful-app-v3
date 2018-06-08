@@ -41,6 +41,7 @@ router.post('/', (req,res,next)=>{
   }
 
   Tag.create({'name':name})
+    .then(result => res.location(`http://${req.headers.host}/folders/${result.id}`).status(201).json(result))
     .catch(err => {
       if (err.code === 11000) {
         err = new Error('The folder name already exists');
