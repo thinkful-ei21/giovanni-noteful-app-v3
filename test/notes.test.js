@@ -10,6 +10,10 @@ const Note = require('../models/note');
 const seedNotes = require('../db/seed/notes');
 const Folder = require('../models/folder');
 const seedFolders = require('../db/seed/folders');
+const Tag = require('../models/tag');
+const seedTags = require('../db/seed/tags');
+
+
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -24,7 +28,8 @@ describe('notes router', () => {
     
   beforeEach(function () {
     return Note.insertMany(seedNotes)
-      .then(()=> Folder.insertMany(seedFolders));
+      .then(()=> Folder.insertMany(seedFolders))
+      .then(()=> Tag.insertMany(seedTags));
   });
     
   afterEach(function () {
