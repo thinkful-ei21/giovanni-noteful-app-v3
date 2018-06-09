@@ -54,15 +54,18 @@ describe('notes router', () => {
         });
     });
 
-    it('/ [ID] should return a note object with the correct ID', ()=>{
+    it('/ [ID] should return a note object with the correct ID and populated tag objects', ()=>{
       return Promise.all([
         Note.find({'_id': '000000000000000000000001'}),
         chai.request(app).get('/api/notes/000000000000000000000001')
       ])
         .then(([data, res])=>{
+          //console.log('res is:', res);
           expect(res).to.have.status(200);
           expect(data[0].title).to.be.equal(res.body.title);
           expect(data[0].id).to.be.equal(res.body.id);
+          expect(res.body.tags).to.be.a('array');
+          expect(res.body.tags[0]).to.contain.keys('name','createdAt','updatedAt','id');
         });
     });
 
